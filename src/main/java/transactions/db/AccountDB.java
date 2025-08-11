@@ -15,7 +15,7 @@ public class AccountDB extends Database {
         boolean isCreated = false;
 
         try (Connection con = Database.getConnection(); Statement state = con.createStatement()) {
-            if (con.getMetaData().getTables(null, null, "accounts", new String[] {"TABLE"}).next()) {
+            if (con.getMetaData().getTables(null, null, tableName, new String[] {"TABLE"}).next()) {
                 isCreated = true;
             } else {
                 isCreated = state.execute("CREATE TABLE " + tableName + " (" +
