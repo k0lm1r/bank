@@ -4,12 +4,12 @@ import java.math.BigDecimal;
 import java.sql.*;
 import transactions.models.Transaction;
 
-public class TransacitonDB extends Database {
+public class TransactionDB extends Database {
     @Override
     public boolean createTable() {
         boolean isCreated = false;
 
-        try (Connection con = Database.getConnection(); Statement state = con.createStatement()) {
+        try (Connection con = getConnection(); Statement state = con.createStatement()) {
             if (con.getMetaData().getTables(null, null, "transaction", new String[] {"TABLE"}).next()) {
                 isCreated = true;
             } else {
@@ -23,17 +23,19 @@ public class TransacitonDB extends Database {
                 ");");
             }
         } catch (SQLException e) {
-            Database.processException(e);
+            processException(e);
         }
 
         return isCreated;
     }
 
-    private boolean validateTransaction(Transaction newTransaction) {
+    private static boolean validateTransaction(Transaction newTransaction) {
         BigDecimal senderBalance = AccountDB.takeAccountBalance(newTransaction.getSendersId());
         BigDecimal delta = takeDelta(newTransaction.getSendersId());
 
-        if (senderBalance == null || AccountDB.takeAccountBalance(newTransaction.getRecipientId()) == null) {
+        if (newTransaction.getRecipientId() == newTransaction.getSendersId()) {
+            return false;
+        } else if (senderBalance == null || AccountDB.takeAccountBalance(newTransaction.getRecipientId()) == null) {
             return false;
         } else if (senderBalance.add(delta).compareTo(newTransaction.getTransactionSum()) == -1) {
             return false;
@@ -42,12 +44,12 @@ public class TransacitonDB extends Database {
         return true;
     }
 
-    private BigDecimal takeDelta(long id) {
+    private static BigDecimal takeDelta(long id) {
         BigDecimal delta = null;
         String sqlIncome = "SELECT SUM(sum) FROM transaction WHERE recipient_id = ?;";
         String sqlExpence = "SELECT SUM(sum) FROM transaction WHERE sender_id = ?";
 
-        try (Connection con = Database.getConnection()) {
+        try (Connection con = getConnection()) {
             PreparedStatement stateIncome = con.prepareStatement(sqlIncome), stateExpence = con.prepareStatement(sqlExpence);
 
             stateIncome.setLong(1, id);
@@ -58,16 +60,16 @@ public class TransacitonDB extends Database {
 
             resIncome.close(); resExpence.close(); stateIncome.close(); stateExpence.close();
         } catch (SQLException e) {
-            Database.processException(e);
+            processException(e);
         }
 
         return delta;
     }
 
-    public boolean insertTransaction(Transaction newTransaction) {
+    public static boolean insertTransaction(Transaction newTransaction) {
         boolean isInserted = false;
 
-        try (Connection con = Database.getConnection()) {
+        try (Connection con = getConnection()) {
             con.setAutoCommit(false);
             String blockSql = "SELECT * FROM account WHERE id = ? FOR UPDATE";
 
@@ -90,7 +92,7 @@ public class TransacitonDB extends Database {
             } else 
                 con.rollback();
         } catch (SQLException e) {
-            Database.processException(e);
+            processException(e);
         }
 
         return isInserted;

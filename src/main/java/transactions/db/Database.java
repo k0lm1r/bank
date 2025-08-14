@@ -8,7 +8,7 @@ import com.zaxxer.hikari.HikariDataSource;
 
 public abstract class Database {
     private static HikariDataSource dataSource;
-    private static HikariConfig config;
+    private static HikariConfig config = new HikariConfig();
 
     static {
         config.setJdbcUrl("jdbc:postgresql://localhost:5432/bank_db");

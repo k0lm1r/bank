@@ -14,7 +14,7 @@ public class AccountDB extends Database {
     public boolean createTable() {
         boolean isCreated = false;
 
-        try (Connection con = Database.getConnection(); Statement state = con.createStatement()) {
+        try (Connection con = getConnection(); Statement state = con.createStatement()) {
             if (con.getMetaData().getTables(null, null, "account", new String[] {"TABLE"}).next()) {
                 isCreated = true;
             } else {
@@ -24,21 +24,21 @@ public class AccountDB extends Database {
                 ");");
             }
         } catch (SQLException e) {
-            Database.processException(e);
+            processException(e);
         }
 
         return isCreated;
     }
 
-    public boolean insertAccount(Account newAccount) {
+    public static boolean insertAccount(Account newAccount) {
         String sql = "INSERT account(balance) VALUES(?);";
         boolean isInserted = false;
 
-        try (Connection con = Database.getConnection(); PreparedStatement state = con.prepareStatement(sql)) {
+        try (Connection con = getConnection(); PreparedStatement state = con.prepareStatement(sql)) {
             state.setBigDecimal(1, newAccount.getBalance());
             isInserted = state.executeUpdate() == 1;
         } catch (SQLException e) {
-            Database.processException(e);
+            processException(e);
         }
 
         return isInserted;
@@ -48,13 +48,13 @@ public class AccountDB extends Database {
         String sql = "SELECT balance FROM account WHERE id = ?;";
         BigDecimal balance = null;
 
-        try (Connection con = Database.getConnection(); PreparedStatement state = con.prepareStatement(sql)) {
+        try (Connection con = getConnection(); PreparedStatement state = con.prepareStatement(sql)) {
             state.setLong(1, id);
             ResultSet res = state.executeQuery();
             balance = res.getBigDecimal("balance");
             res.close();
         } catch (SQLException e) {
-            Database.processException(e);
+            processException(e);
         }
 
         return balance;
