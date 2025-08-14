@@ -12,31 +12,20 @@ import transactions.service.ProcessingService;
 public class Main {
     public static void main(String[] args) {
         ProcessingService service = new ProcessingService();
+        ExecutorService clientsPool = Executors.newFixedThreadPool(4);
 
-        Thread clients = new Thread(() -> {
-            ExecutorService clientsPool = Executors.newFixedThreadPool(4);
-
-            for (int i = 0; i < 10; ++i) {
-                clientsPool.execute(() -> {
-                    service.addToQueue(new Transaction(BigDecimal.valueOf(Math.random() * 1000), new Random().nextInt(5) + 1, new Random().nextInt(5) + 1));
-                });
-            }
-
-            try {
-                clientsPool.awaitTermination(1000, TimeUnit.MICROSECONDS);
-                clientsPool.shutdown();
-            } catch(InterruptedException e) {
-                System.out.println(e.getMessage() + " in clients");
-            }
-
-        });
-
-        clients.start();
+        for (int i = 0; i < 10; ++i) {
+            clientsPool.execute(() -> {
+                service.addToQueue(new Transaction(BigDecimal.valueOf(Math.random() * 1000),
+                        new Random().nextInt(5) + 1, new Random().nextInt(5) + 1));
+            });
+        }
 
         try {
-            clients.join();
+            clientsPool.awaitTermination(1000, TimeUnit.MICROSECONDS);
+            clientsPool.shutdown();
         } catch (InterruptedException e) {
-            System.out.println(e.getMessage());
+            System.out.println(e.getMessage() + " in clients");
         }
 
         System.out.println("complite");

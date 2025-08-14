@@ -27,12 +27,12 @@ public class ProcessingService {
         transactionsQueue.add(newTransaction);
 
         if (!isProcessingRunning) {
+            isProcessingRunning = true;
             CompletableFuture.runAsync(() -> this.processQueue());
         }
     }
 
     public void processQueue() {
-        isProcessingRunning = true;
         ExecutorService pool = Executors.newWorkStealingPool(4);
         
         while (!transactionsQueue.isEmpty()) {
