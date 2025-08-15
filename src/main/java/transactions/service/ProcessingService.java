@@ -16,11 +16,11 @@ public class ProcessingService {
     private boolean isProcessingRunning = false;
 
     public ProcessingService () {
-        new TransactionDB().createTable();
-
         if (new AccountDB().createTable())
             for (int i = 0; i < 5; ++i)
                 AccountDB.insertAccount(new Account(BigDecimal.valueOf(10000)));
+
+        new TransactionDB().createTable();
     }
 
     public synchronized void addToQueue(Transaction newTransaction) {

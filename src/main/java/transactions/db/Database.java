@@ -23,7 +23,11 @@ public abstract class Database {
     }
 
     public static void processException(SQLException e) {
-        System.out.println(e.getMessage() + '\n' + e.getSQLState());
+        System.out.println(e.getMessage() + ' ' + e.getSQLState());
+    }
+
+    public static void closeDataSource() {
+        dataSource.close();
     }
 
     public abstract boolean createTable();

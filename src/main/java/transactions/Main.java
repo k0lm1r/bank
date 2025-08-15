@@ -6,6 +6,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import transactions.db.Database;
 import transactions.models.Transaction;
 import transactions.service.ProcessingService;
 
@@ -16,7 +17,7 @@ public class Main {
 
         for (int i = 0; i < 10; ++i) {
             clientsPool.execute(() -> {
-                service.addToQueue(new Transaction(BigDecimal.valueOf(Math.random() * 1000),
+                service.addToQueue(new Transaction(BigDecimal.valueOf(new Random().nextDouble(1000)),
                         new Random().nextInt(5) + 1, new Random().nextInt(5) + 1));
             });
         }

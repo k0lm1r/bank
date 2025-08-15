@@ -16,11 +16,11 @@ public class AccountDB extends Database {
 
         try (Connection con = getConnection(); Statement state = con.createStatement()) {
             if (con.getMetaData().getTables(null, null, "account", new String[] {"TABLE"}).next()) {
-                isCreated = true;
+                isCreated = false;
             } else {
                 isCreated = state.execute("CREATE TABLE account (" +
-                "account_id INT PRIMARY GENERATED ALWAYS AS IDENTITY," + 
-                "balance DECIMAL(6, 2)," +
+                "account_id INT NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY," + 
+                "balance DECIMAL(7, 2)" +
                 ");");
             }
         } catch (SQLException e) {
@@ -31,7 +31,7 @@ public class AccountDB extends Database {
     }
 
     public static boolean insertAccount(Account newAccount) {
-        String sql = "INSERT account(balance) VALUES(?);";
+        String sql = "INSERT INTO account (balance) VALUES(?);";
         boolean isInserted = false;
 
         try (Connection con = getConnection(); PreparedStatement state = con.prepareStatement(sql)) {
@@ -45,13 +45,15 @@ public class AccountDB extends Database {
     }
 
     public static BigDecimal takeAccountBalance(long id) {
-        String sql = "SELECT balance FROM account WHERE id = ?;";
+        String sql = "SELECT balance FROM account WHERE account_id = ?;";
         BigDecimal balance = null;
 
         try (Connection con = getConnection(); PreparedStatement state = con.prepareStatement(sql)) {
             state.setLong(1, id);
+
             ResultSet res = state.executeQuery();
-            balance = res.getBigDecimal("balance");
+            while (res.next())
+                balance = res.getBigDecimal("balance");
             res.close();
         } catch (SQLException e) {
             processException(e);
