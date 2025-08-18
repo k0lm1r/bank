@@ -7,34 +7,35 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import transactions.db.*;
 import transactions.models.*;
 
 public class ProcessingService {
     private BlockingQueue<Transaction> transactionsQueue = new LinkedBlockingQueue<>();
-    private boolean isProcessingRunning = false;
+    private AtomicBoolean isProcessingRunning = new AtomicBoolean(false);
 
     public ProcessingService () {
-        if (new AccountDB().createTable())
+        if (AccountDB.createTable()) {
             for (int i = 0; i < 5; ++i)
                 AccountDB.insertAccount(new Account(BigDecimal.valueOf(10000)));
+        }
 
-        new TransactionDB().createTable();
+        TransactionDB.createTable();
     }
 
     public synchronized void addToQueue(Transaction newTransaction) {
         transactionsQueue.add(newTransaction);
 
-        if (!isProcessingRunning) {
-            isProcessingRunning = true;
+        if (!isProcessingRunning.get()) {
+            isProcessingRunning.set(true);
             CompletableFuture.runAsync(() -> this.processQueue());
         }
     }
 
     public void processQueue() {
-        ExecutorService pool = Executors.newWorkStealingPool(4);
-        
+        ExecutorService pool = Executors.newFixedThreadPool(4);
         while (!transactionsQueue.isEmpty()) {
             pool.execute(() -> {
                 try {
@@ -51,7 +52,19 @@ public class ProcessingService {
         } catch (InterruptedException e) {
             System.out.println(e.getMessage());
         }
+        isProcessingRunning.set(false);
+    }
 
-        isProcessingRunning = false;
+    private void updateAllBalances() {
+        long count = AccountDB.getCount();
+
+        for (long i = 1; i <= count; ++i)
+            AccountDB.updateBalance(i, TransactionDB.takeDelta(i));
+    }
+
+    public void stop() {
+        while (isProcessingRunning.get() || !transactionsQueue.isEmpty());
+        updateAllBalances();
+        Database.close();
     }
 }
