@@ -35,7 +35,7 @@ public class ProcessingService {
     }
 
     public void processQueue() {
-        ExecutorService pool = Executors.newFixedThreadPool(4);
+        ExecutorService pool = Executors.newWorkStealingPool(4);
         while (!transactionsQueue.isEmpty()) {
             pool.execute(() -> {
                 try {

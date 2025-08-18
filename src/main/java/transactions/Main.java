@@ -5,7 +5,6 @@ import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import transactions.models.Transaction;
 import transactions.service.ProcessingService;
@@ -15,6 +14,7 @@ public class Main {
         ProcessingService service = new ProcessingService();
         ExecutorService clientsPool = Executors.newFixedThreadPool(4);
         CountDownLatch latch = new CountDownLatch(10);
+        long start = System.currentTimeMillis();
 
         for (int i = 0; i < 10; ++i) {
             clientsPool.execute(() -> {
@@ -25,14 +25,15 @@ public class Main {
         }
 
         try {
-            clientsPool.awaitTermination(1000, TimeUnit.MICROSECONDS);
-            clientsPool.shutdown();
             latch.await();
         } catch (InterruptedException e) {
-            System.out.println(e.getMessage() + " in clients");
+            System.out.println(e.getMessage() + "in clients");
         }
 
         service.stop();
-        System.out.println("complite");
+        clientsPool.shutdown();
+
+        long end = System.currentTimeMillis();
+        System.out.println("complite " + (end - start));
     }
 }
