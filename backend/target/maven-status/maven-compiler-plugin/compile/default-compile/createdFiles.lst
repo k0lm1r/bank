@@ -1,5 +1,7 @@
 transactions\models\Account.class
 transactions\db\AccountDB.class
 transactions\db\Database.class
+transactions\service\ProcessingService.class
 transactions\models\Transaction.class
+transactions\db\TransactionDB.class
 transactions\Main.class
