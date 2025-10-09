@@ -14,7 +14,7 @@ public class Database {
     public static Timestamp startTime = new Timestamp(System.currentTimeMillis());
 
     static {
-        config.setJdbcUrl("jdbc:postgresql://localhost:5432/bank_db");
+        config.setJdbcUrl("jdbc:postgresql://localhost:8080/bank_db");
         config.setUsername("postgres");
         config.setPassword("postgres");
         config.setMaximumPoolSize(8);
@@ -31,22 +31,5 @@ public class Database {
 
     public static void close() {
         dataSource.close();
-    }
-
-    public static boolean createTable(String tableName, String creatingPattern) {
-        boolean isCreated = false;
-
-        try (Connection con = getConnection(); Statement state = con.createStatement()) {
-            if (con.getMetaData().getTables(null, null, tableName, new String[] {"TABLE"}).next()) {
-                isCreated = false;
-            } else {
-                state.execute(creatingPattern);
-                isCreated = true;
-            }
-        } catch (SQLException e) {
-            processException(e);
-        }
-
-        return isCreated;
     }
 }

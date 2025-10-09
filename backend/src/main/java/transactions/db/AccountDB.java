@@ -10,14 +10,6 @@ import java.sql.Statement;
 import transactions.models.Account;
 
 public class AccountDB {
-    public static boolean createTable() {
-        String creatingPattern = "CREATE TABLE account (" +
-                "account_id INT NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY," + 
-                "balance DECIMAL(7, 2)" +
-                ");";
-        return Database.createTable("account", creatingPattern);
-    }
-
     public static boolean insertAccount(Account newAccount) {
         String sql = "INSERT INTO account (balance) VALUES(?);";
         boolean isInserted = false;

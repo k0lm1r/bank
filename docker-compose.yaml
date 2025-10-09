@@ -9,6 +9,7 @@ services:
       - 8080:5432
     volumes:
       - data-db:/var/lib/postgres/data
+      - ./start.sql:/docker-entrypoint-initdb.d/start.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s

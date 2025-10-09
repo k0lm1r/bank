@@ -5,19 +5,6 @@ import java.sql.*;
 import transactions.models.Transaction;
 
 public class TransactionDB {
-    public static boolean createTable() {
-        String creatingPattern = "CREATE TABLE transaction (" +
-                "transaction_id INT NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY," + 
-                "sender_id INT," +
-                "recipient_id INT," +
-                "sum DECIMAL(7, 2)," +
-                "time TIMESTAMP," +
-                "FOREIGN KEY (sender_id) REFERENCES account (account_id)," + 
-                "FOREIGN KEY (recipient_id) REFERENCES account (account_id)" +
-                ");";
-        return Database.createTable("transaction", creatingPattern);
-    }
-
     private static boolean validateTransaction(Transaction newTransaction) {
         BigDecimal senderBalance = AccountDB.takeAccountBalance(newTransaction.getSendersId());
         BigDecimal delta = takeDelta(newTransaction.getSendersId());

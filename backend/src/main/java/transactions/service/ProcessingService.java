@@ -16,14 +16,7 @@ public class ProcessingService {
     private BlockingQueue<Transaction> transactionsQueue = new LinkedBlockingQueue<>();
     private AtomicBoolean isProcessingRunning = new AtomicBoolean(false);
 
-    public ProcessingService () {
-        if (AccountDB.createTable()) {
-            for (int i = 0; i < 5; ++i)
-                AccountDB.insertAccount(new Account(BigDecimal.valueOf(10000)));
-        }
-
-        TransactionDB.createTable();
-    }
+    public ProcessingService () {}
 
     public synchronized void addToQueue(Transaction newTransaction) {
         transactionsQueue.add(newTransaction);
