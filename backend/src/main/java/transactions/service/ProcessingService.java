@@ -1,6 +1,5 @@
 package transactions.service;
 
-import java.math.BigDecimal;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
